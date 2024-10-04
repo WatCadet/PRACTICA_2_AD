@@ -1,0 +1,183 @@
+---
+title: "Ejercicios de estadística descriptiva multivariante"
+subtitle: "20582- Análisis de Datos para el GMAT"
+date: today
+format:
+  html:
+    theme: lumen
+    toc: true
+    toc-depth: 3
+Rendering:
+    embed-resources: true
+---
+
+**Dídac Capó Peña**:
+
+[Ver en GitHub](https://github.com/WatCadet/PRACTICA_3_AD)
+
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+```{r, echo=FALSE, eval=TRUE}
+library(tidyverse)
+library(xtable) #Poner el data en formato matriz
+library(GGally)
+library(knitr)
+```
+
+## Enunciado y datos
+
+Una empresa quiere analizar si existe relación entre las ventas de sus productos, la inversión en publicidad y la satisfacción del cliente. Los datos que corresponden a las ventas han sido registrados en miles de unidades, el gasto en publicidad en miles de euros y la puntuación de satisfacción del cliente en una escala de 1 a 10 para 30 productos, los puedes descargar en el siguiente enlace:  [datos empresa](https://github.com/igmuib/Practica_AD/blob/main/datos_empresa.csv)
+
+#### Leer los datos:
+
+```{r}
+data_analisis <- read_csv("analisis_ventas.csv")
+data_analisis
+```
+
+
+### Apartado 1
+Organiza el conjunto de datos en una matriz, donde cada fila corresponda a un producto y cada columna a una variable, siendo la variable "Producto" únicamente un identificador. A continuación, presenta la matriz de dispersión entre las variables, utilizando puntos coloreados según el tipo de marca (consulta la sección 2.4.2 de los apuntes). Comenta los resultados obtenidos, prestando especial atención a lo que indican los valores de las correlaciones entre las variables.
+
+#### Respuesta
+
+Nuestra matriz de datos, que llamaremos $X$, es la siguiente: 
+
+```{r, echo=FALSE}
+X <-  data_analisis %>% select(-1) 
+X_matrix <- as.matrix(X)
+```
+
+La Matriz de dispersión entre las variables es la siguiente. Hemos utilizado puntos coloreados segun el tipo de marca.  
+
+MODIFICAR
+```{r, eval=FALSE}
+a<-X %>%
+  na.omit
+ggpairs(a,
+        col = c("red", "blue")[as.integer(a$marca)])
+```
+
+
+### Apartado 2
+
+Calcula la matriz de datos centrada y el vector de medias con las formas matriciales estudiada en clase de teoría. Interpreta el vector de medias en el contexto del problema.
+
+#### Respuesta
+
+El vector de medias és el siguiente: 
+```{r}
+x_barra = colMeans(X)
+```
+$\overline{x} = (164, 32.33, 8.35)$
+
+Tambien podemos obtener el mismo vector aplicando $\overline{x}^T = \frac{1}{n}1^TX$
+```{r}
+n=15
+unos  <- rep(1, 15)
+x_barra2 = (1/n) %*% unos %*% X_matrix
+```
+
+El resultado es el mismo.
+
+La media de las ventas es de $164$ miles de unidades, la media del gasto en publicidad es de $32.33$ miles de euros y la media de la  puntuación de satisfacción del cliente es de $8.35$.
+
+Ahora calculemos la matriz de datos centrados de dos maneras distintas, ya que $\tilde{X}= X - 1\overline{x}^T = HX$ 
+
+```{r}
+X_tilde = X_matrix - unos %*% x_barra2
+X_tilde
+```
+
+
+```{r}
+H <- diag(15) - matrix(1/n, nrow = 15, ncol = 15)
+X_tilde1 = H%*% X_matrix 
+X_tilde1
+```
+
+En los dos casos obtenemos lo mismo
+
+
+### Apartado 3
+
+Calcula la matriz de covarianzas y la matriz de correlaciones utilizando las formas matriciales vistas en la clase de teoría. A continuación, interpreta los resultados obtenidos para ambas matrices en el contexto del problema.
+
+#### Respuesta
+
+Calculemos primero la matriz de covarianzas, $S = \frac{1}{n} X^THX$
+
+```{r}
+X_transpuesta <- t(X_matrix) 
+S = (1/n) * X_transpuesta %*% H %*% X_matrix
+S
+```
+
+Revisemos que hemos obtenido bien los datos con la función `cov`. Recordemos que tenemos que multiplicar por $\frac{n-1}{n}$ para obtener la matriz de covarianzas a secas en lugar de la muestral,
+
+```{r}
+(n-1)/n*cov(X_matrix)
+```
+
+Vemos que coinciden. 
+
+Notemos que todas las covarianzas son positivas, $S_{X,Y} > 0$,  podemos concluir que si $x_i > x_j$ entonces $y_i$ tiende a ser más grande que $y_j$. 
+
+Calculemos ahora la matriz de correlaciones, $R= D^{-1}SD^{-1}$:
+
+Definimos $D$ como la matriz diagonal con las varianzas en la diagonal.
+
+```{r}
+diagonal <- diag(S)
+diagonal <- sqrt(diagonal)
+D <- diag(diagonal)
+D_inversa <- solve(D)
+R = D_inversa %*% S %*% D_inversa
+R
+```
+Revisemos que hemos obtenido bien los datos con la función `cor`.
+
+```{r}
+cor(X_matrix)
+```
+Vemos que coinciden. 
+
+Notemos que todas las correlaciones son positivas, $R_{X,Y} > 0$,  podemos concluir que si $x_i > x_j$ entonces $y_i$ tiende a ser más grande que $y_j$. 
+
+
+### Apartado 4
+
+
+Calcula la matriz de correlaciones muestrales con la forma matricial estudiada en clase de teoría y revisa que lo has hecho bien con la función disponible de `R`. Interpreta los resultados obtenidos. 
+
+
+#### Respuesta
+
+
+
+### Apartado 5
+
+Calcula la varianza generalizada y la variación total del conjunto de datos numéricos que estamos estudiando. Interpreta los resultados obtenidos.
+
+#### Respuesta
+
+
+
+### Apartado 6
+Calcula los vectores de medias y las matrices de correlacioes muestrales para cada marca de productos utilizando  las funciones que están disponibles en `R` y `tidyverse`. Comenta los resultados obtenidos.
+
+#### Respuesta
+
+
+
+### Apartado 7
+
+Utiliza la librería `ggcorrplot` para visualizar las matrices de correlaciones para cada marca de productos mediante mapas de calor que muestren solo las matrices triangulares inferiores. Para la marca A presenta los resultados con  `method = "square"`, para las marca B con  `method = "circle"` y, para la marca C con  `method = "circle"` pero especificando tres cifras decimales. Comenta los resultados obtenidos e indica cuál de los métodos te parece más apropiado para interpretar estos datos.
+
+#### Respuesta
+
