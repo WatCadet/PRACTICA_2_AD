@@ -15,9 +15,6 @@ Rendering:
 
 [Ver en GitHub](https://github.com/WatCadet/PRACTICA_3_AD)
 
-
-
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
@@ -27,42 +24,61 @@ library(tidyverse)
 library(xtable) #Poner el data en formato matriz
 library(GGally)
 library(knitr)
+library(ggcorrplot)
 ```
 
 ## Enunciado y datos
 
-Una empresa quiere analizar si existe relación entre las ventas de sus productos, la inversión en publicidad y la satisfacción del cliente. Los datos que corresponden a las ventas han sido registrados en miles de unidades, el gasto en publicidad en miles de euros y la puntuación de satisfacción del cliente en una escala de 1 a 10 para 30 productos, los puedes descargar en el siguiente enlace:  [datos empresa](https://github.com/igmuib/Practica_AD/blob/main/datos_empresa.csv)
+Una empresa quiere analizar si existe relación entre las ventas de sus productos, la inversión en publicidad y la satisfacción del cliente. Los datos que corresponden a las ventas han sido registrados en miles de unidades, el gasto en publicidad en miles de euros y la puntuación de satisfacción del cliente en una escala de 1 a 10 para 30 productos, los puedes descargar en el siguiente enlace: [datos empresa](https://github.com/igmuib/Practica_AD/blob/main/datos_empresa.csv)
 
-#### Leer los datos:
+#### Visualizar y leer los datos:
 
-```{r}
-data_analisis <- read_csv("analisis_ventas.csv")
-data_analisis
+```{r, echo=FALSE}
+data_analisis <- read_csv("datos_proporcionados.csv")
+
+data_analisis2 <- data_analisis %>%
+  mutate(Marca = recode(Marca,
+                            "Marca A" = "A", 
+                            "Marca B" = "B", 
+                            "Marca C" = "C"
+))
+
+data_analisis2
 ```
 
-
 ### Apartado 1
+
 Organiza el conjunto de datos en una matriz, donde cada fila corresponda a un producto y cada columna a una variable, siendo la variable "Producto" únicamente un identificador. A continuación, presenta la matriz de dispersión entre las variables, utilizando puntos coloreados según el tipo de marca (consulta la sección 2.4.2 de los apuntes). Comenta los resultados obtenidos, prestando especial atención a lo que indican los valores de las correlaciones entre las variables.
 
 #### Respuesta
 
-Nuestra matriz de datos, que llamaremos $X$, es la siguiente: 
+Nuestra matriz de datos, que llamaremos $X$, es la siguiente:
 
 ```{r, echo=FALSE}
-X <-  data_analisis %>% select(-1) 
-X_matrix <- as.matrix(X)
+X <-  data_analisis2 %>% select(-1) 
+X
 ```
 
-La Matriz de dispersión entre las variables es la siguiente. Hemos utilizado puntos coloreados segun el tipo de marca.  
+La Matriz de dispersión entre las variables es la siguiente. Hemos utilizado distinción en colores segun el tipo de marca.
 
-MODIFICAR
-```{r, eval=FALSE}
-a<-X %>%
-  na.omit
-ggpairs(a,
-        col = c("red", "blue")[as.integer(a$marca)])
+```{r}
+a <- X %>% 
+  na.omit()
+
+a$Marca <- as.factor(a$Marca)
+
+ggpairs(a, 
+        aes(color = Marca, fill = Marca)) +
+  theme_bw()  
 ```
 
+En las $\textbf{Celdas de la Diagonal Principal}$ encontramos la distribución por Marca (A, B, C) de cada variable de forma individual. Los gráficos de densidad indican cómo se distribuyen los valores para cada grupo (Marca A, Marca B, Marca C). Las áreas en diferentes colores (rojo para Marca A, azul para Marca B y verde para Marca C) nos dan una idea de la dispersión y concentración de los valores. Las variables categóricas, como "Marca", se muestran como diagramas de barras, donde vemos que hay la misma cantidad de cada tipo.
+
+En las $\textbf{Celdas Inferiores}$ se muestran gráficos de dispersión para cada par de variables cuantitativas. Los puntos están coloreados según la variable Marca, lo cual permite observar visualmente si las tres marcas se comportan de manera diferente en términos de correlación. Por ejemplo: La celda que relaciona Ventas y Publicidad muestra cómo se comportan estas variables, y podemos notar una tendencia clara creciente, lo cual sugiere una fuerte correlación positiva.
+
+En las $\textbf{Celdas Superiores}$ tenemos el coeficiente de correlación entre los pares de variables cuantitativas. Los coeficientes de correlación están coloreados y desglosados por cada marca (A, B, C). Los números indican el valor de la correlación entre las variables. En los tres casos la correlación es $>0$, por lo tanto, para todo par de variables $X$ e $Y$ las correlaciones son positivas. Podemos concluir que si $x_i > x_j$, entonces $y_i$ tiende a ser más grande que $y_j$.
+
+En las $\textbf{Celdas con Boxplots y Diagramas de Barras}$ se está relacionando una variable continua con la categórica (Marca). Estas celdas, que están relacionadas con la variable Marca, contienen diagramas de caja (boxplots) o diagramas de barras. Los boxplots permiten visualizar la mediana, los cuartiles y los posibles valores atípicos (outliers) para cada variable continua (Ventas, Publicidad, Satisfacción_cliente) en relación con cada Marca (A, B, C). Vemos que, para las tres variables cuantitativas, los elementos de la Marca B tienden a tener mayor mediana.
 
 ### Apartado 2
 
@@ -70,39 +86,42 @@ Calcula la matriz de datos centrada y el vector de medias con las formas matrici
 
 #### Respuesta
 
-El vector de medias és el siguiente: 
+El vector de medias, para las variables cuantitativas, és el siguiente:
+
 ```{r}
-x_barra = colMeans(X)
+X_q <- X %>% select(-4)
+X_q <- as.matrix(X_q) 
+x_barra = colMeans(X_q)
 ```
+
 $\overline{x} = (164, 32.33, 8.35)$
 
 Tambien podemos obtener el mismo vector aplicando $\overline{x}^T = \frac{1}{n}1^TX$
+
 ```{r}
-n=15
-unos  <- rep(1, 15)
-x_barra2 = (1/n) %*% unos %*% X_matrix
+n=30
+unos  <- rep(1, n)
+x_barra2 = (1/n) * unos %*% X_q
 ```
 
 El resultado es el mismo.
 
-La media de las ventas es de $164$ miles de unidades, la media del gasto en publicidad es de $32.33$ miles de euros y la media de la  puntuación de satisfacción del cliente es de $8.35$.
+La media de las ventas es de $164$ miles de unidades, la media del gasto en publicidad es de $32.33$ miles de euros y la media de la puntuación de satisfacción del cliente es de $8.35$.
 
-Ahora calculemos la matriz de datos centrados de dos maneras distintas, ya que $\tilde{X}= X - 1\overline{x}^T = HX$ 
+Ahora calculemos la matriz de datos centrados de dos maneras distintas, ya que $\tilde{X}= X - 1\overline{x}^T = HX$
 
 ```{r}
-X_tilde = X_matrix - unos %*% x_barra2
+X_tilde = X_q - unos %*% x_barra2
 X_tilde
 ```
 
-
 ```{r}
-H <- diag(15) - matrix(1/n, nrow = 15, ncol = 15)
-X_tilde1 = H%*% X_matrix 
+H <- diag(30) - matrix(1/n, nrow = 30, ncol = 30)
+X_tilde1 = H%*% X_q 
 X_tilde1
 ```
 
 En los dos casos obtenemos lo mismo
-
 
 ### Apartado 3
 
@@ -113,20 +132,20 @@ Calcula la matriz de covarianzas y la matriz de correlaciones utilizando las for
 Calculemos primero la matriz de covarianzas, $S = \frac{1}{n} X^THX$
 
 ```{r}
-X_transpuesta <- t(X_matrix) 
-S = (1/n) * X_transpuesta %*% H %*% X_matrix
+X_transpuesta <- t(X_q) 
+S = (1/n) * X_transpuesta %*% H %*% X_q
 S
 ```
 
 Revisemos que hemos obtenido bien los datos con la función `cov`. Recordemos que tenemos que multiplicar por $\frac{n-1}{n}$ para obtener la matriz de covarianzas a secas en lugar de la muestral,
 
 ```{r}
-(n-1)/n*cov(X_matrix)
+(n-1)/n*cov(X_q)
 ```
 
-Vemos que coinciden. 
+Vemos que coinciden.
 
-Notemos que todas las covarianzas son positivas, $S_{X,Y} > 0$,  podemos concluir que si $x_i > x_j$ entonces $y_i$ tiende a ser más grande que $y_j$. 
+Notemos que todas las covarianzas son positivas, $S_{X,Y} > 0$, podemos concluir que si $x_i > x_j$ entonces $y_i$ tiende a ser más grande que $y_j$.
 
 Calculemos ahora la matriz de correlaciones, $R= D^{-1}SD^{-1}$:
 
@@ -140,25 +159,24 @@ D_inversa <- solve(D)
 R = D_inversa %*% S %*% D_inversa
 R
 ```
+
 Revisemos que hemos obtenido bien los datos con la función `cor`.
 
 ```{r}
-cor(X_matrix)
+cor(X_q)
 ```
-Vemos que coinciden. 
 
-Notemos que todas las correlaciones son positivas, $R_{X,Y} > 0$,  podemos concluir que si $x_i > x_j$ entonces $y_i$ tiende a ser más grande que $y_j$. 
+Vemos que coinciden.
 
+Notemos que todas las correlaciones son positivas, $R_{X,Y} > 0$, podemos concluir que si $x_i > x_j$ entonces $y_i$ tiende a ser más grande que $y_j$.
 
 ### Apartado 4
 
-
-Calcula la matriz de correlaciones muestrales con la forma matricial estudiada en clase de teoría y revisa que lo has hecho bien con la función disponible de `R`. Interpreta los resultados obtenidos. 
-
+Calcula la matriz de correlaciones muestrales con la forma matricial estudiada en clase de teoría y revisa que lo has hecho bien con la función disponible de `R`. Interpreta los resultados obtenidos.
 
 #### Respuesta
 
-
+Todo realizado en el apartado anterior.
 
 ### Apartado 5
 
@@ -166,18 +184,96 @@ Calcula la varianza generalizada y la variación total del conjunto de datos num
 
 #### Respuesta
 
-
-
 ### Apartado 6
-Calcula los vectores de medias y las matrices de correlacioes muestrales para cada marca de productos utilizando  las funciones que están disponibles en `R` y `tidyverse`. Comenta los resultados obtenidos.
+
+Calcula los vectores de medias y las matrices de correlacioes muestrales para cada marca de productos utilizando las funciones que están disponibles en `R` y `tidyverse`. Comenta los resultados obtenidos.
 
 #### Respuesta
 
+Empezemos con el vector de medias: 
+```{r}
+medias <- data_analisis2 %>%
+  group_by(Marca) %>%
+  summarise(
+    Ventas_media = mean(Ventas),
+    Publicidad_media = mean(Publicidad),
+    Satisfaccion_cliente_media= mean(Satisfaccion_cliente) 
+  )
+medias
+```
+Viendo los resultados de las medias en la tabla podemos hacer las siguientes observaciones:
+
+Ventas media:
+
+La Marca B tiene las mayores ventas (186), mientras que la Marca A tiene las menores (144). Esto sugiere que la Marca B podría tener un mejor rendimiento en el mercado en términos de ventas en comparación con las otras dos marcas. La Marca C ocupa un lugar intermedio con 162.
+
+Publicidad media:
+
+La inversión en Publicidad sigue una tendencia similar a la de las ventas. La Marca B nuevamente es la que más gasta en publicidad, con un valor promedio de 36.6. La Marca A es la que menos invierte (28.2), mientras que la Marca C se encuentra entre ambas con un gasto promedio de 32.2.
+
+Satisfacción del cliente media:
+
+En términos de Satisfacción del cliente, la Marca B también lidera con un valor promedio de 8.64, seguida de cerca por la Marca C con 8.40. La Marca A tiene el valor más bajo de satisfacción (8.00). 
+
+Comentarios Generales:
+
+Parece que la Marca B es la que mejor se posiciona en todos los aspectos: tiene las mayores ventas, la mayor inversión en publicidad y también la mayor satisfacción del cliente. Esto podría sugerir que su estrategia de mayor inversión en publicidad está correlacionada positivamente tanto con las ventas como con la satisfacción del cliente.
+
+La Marca A parece estar en una situación más desfavorable en comparación con las otras dos marcas, mostrando menores niveles de ventas, menor inversión en publicidad y una menor satisfacción del cliente.
+
+La Marca C ocupa una posición intermedia, con niveles de ventas, publicidad y satisfacción del cliente por debajo de la Marca B, pero mejores que los de la Marca A.
+
+Finalmente, calculemos la matriz de correlaciones: 
+
+```{r}
+correlaciones <- data_analisis2 %>%
+  group_by(Marca) %>%
+  group_map(~ cor(.x %>% select(Ventas, Publicidad, Satisfaccion_cliente)))
+
+correlaciones
+
+```
+En todos los casos las correlaciones entre pares de variables haciendo la separación por marcas dan positivo, entonces tenemos que para cada par de variables $X$ e $Y$ si $x_i > x_j$ entonces $y_i$ tiende a ser más grande que $y_j$
 
 
 ### Apartado 7
 
-Utiliza la librería `ggcorrplot` para visualizar las matrices de correlaciones para cada marca de productos mediante mapas de calor que muestren solo las matrices triangulares inferiores. Para la marca A presenta los resultados con  `method = "square"`, para las marca B con  `method = "circle"` y, para la marca C con  `method = "circle"` pero especificando tres cifras decimales. Comenta los resultados obtenidos e indica cuál de los métodos te parece más apropiado para interpretar estos datos.
+Utiliza la librería `ggcorrplot` para visualizar las matrices de correlaciones para cada marca de productos mediante mapas de calor que muestren solo las matrices triangulares inferiores. Para la marca A presenta los resultados con `method = "square"`, para las marca B con `method = "circle"` y, para la marca C con `method = "circle"` pero especificando tres cifras decimales. Comenta los resultados obtenidos e indica cuál de los métodos te parece más apropiado para interpretar estos datos.
 
 #### Respuesta
 
+```{r}
+# Filtrar por cada marca y seleccionar las variables cuantitativas
+data_A <- data_analisis2 %>% filter(Marca == "A") %>% select(Ventas, Publicidad, Satisfaccion_cliente)
+data_B <- data_analisis2 %>% filter(Marca == "B") %>% select(Ventas, Publicidad, Satisfaccion_cliente)
+data_C <- data_analisis2 %>% filter(Marca == "C") %>% select(Ventas, Publicidad, Satisfaccion_cliente)
+
+# Calcular las matrices de correlación
+cor_A <- cor(data_A)
+cor_B <- cor(data_B)
+cor_C <- cor(data_C)
+
+```
+
+Marca A:
+```{r}
+ggcorrplot(cor_A, method = "square", type = "lower", lab = TRUE)
+
+```
+Marca B:
+```{r}
+ggcorrplot(cor_B, method = "circle", type = "lower", lab = TRUE)
+
+```
+Marca C:
+
+```{r}
+cor_C_rounded <- round(cor(data_C), 3)
+ggcorrplot(cor_C_rounded, method = "circle", type = "lower", lab = TRUE)
+```
+
+El método "square" aplicado a la Marca A, es adecuado cuando nos interesa principalmente la precisión numérica y comparar fácilmente las magnitudes de las correlaciones, ya que los cuadros proporcionan una comparación directa y rápida.
+
+El método "circle" aplicado a las Marcas B y C, es adecuado si valoras la visualización estética y la interpretación gráfica intuitiva de la magnitud de las correlaciones. Sin embargo, su uso podría ser menos adecuado si las correlaciones son muy similares, ya que el tamaño de los círculos puede ser difícil de diferenciar en esos casos.
+
+En el caso de la Marca C, mostrar tres decimales proporciona mayor precisión, lo que puede ser útil cuando necesitas un análisis más detallado de las correlaciones. Si las diferencias entre las correlaciones son pequeñas, este ajuste es importante para hacer un análisis más fino.
