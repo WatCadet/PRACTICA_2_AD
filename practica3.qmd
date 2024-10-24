@@ -203,7 +203,7 @@ Y, la variación total:
 ```{r}
 sum(valores_propios)
 ```
-
+La variación total representa la dispersión individual de las variables. Es decir, mide cuánto varía cada variable sin considerar las relaciones entre ellas(ignora las covarianzas). Mientras que la varianza generalizada mide la variabilidad conjunta de las variables, es decir, cuánto varían las variables juntas. En este caso, la varianza generalizada es 15.7 y la variación total 797.24. Esto indica que las tres variables tienen una cantidad significativa de variación individual(como refleja la variación total), però estan fuertemente correlacionadas entre sí, lo que reduce la dispersión conjunta. Esto podria implicar que hay redundancia entre las variables: aunque parecen variar de manera considerable por separado, mucha de esa variación se debe a relaciones communes entre variables. Por ejemplo , tanto las ventas como la satisfacción del cliente podrían depender fuertemnete de la publicidad, haciendo que sus variaciones esten alineadas. 
 
 ### Apartado 6
 
@@ -289,8 +289,7 @@ ggcorrplot(cor_B, method = "circle", type = "lower", lab = TRUE)
 Marca C:
 
 ```{r}
-cor_C_rounded <- round(cor(data_C), 3)
-ggcorrplot(cor_C_rounded, method = "circle", type = "lower", lab = TRUE)
+ggcorrplot(cor_C, method = "circle", type = "lower", lab = TRUE, lab_size = 4, digits = 3)
 ```
 
 El método "square" aplicado a la Marca A, es adecuado cuando nos interesa principalmente la precisión numérica y comparar fácilmente las magnitudes de las correlaciones, ya que los cuadros proporcionan una comparación directa y rápida.

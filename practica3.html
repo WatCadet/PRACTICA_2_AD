@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2024-10-07">
+<meta name="dcterms.date" content="2024-10-24">
 
 <title>Ejercicios de estadística descriptiva multivariante</title>
 <style>
@@ -138,7 +138,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 7, 2024</p>
+      <p class="date">October 24, 2024</p>
     </div>
   </div>
   
@@ -395,6 +395,30 @@ Satisfaccion_cliente 0.9498079  0.9601695            1.0000000</code></pre>
 <p>Calcula la varianza generalizada y la variación total del conjunto de datos numéricos que estamos estudiando. Interpreta los resultados obtenidos.</p>
 <section id="respuesta-4" class="level4">
 <h4 class="anchored" data-anchor-id="respuesta-4">Respuesta</h4>
+<p>Las definiciones de varianza generalizada y variación total són las siguientes,repectivamente:</p>
+<p><span class="math display">\[|S| = \prod_i^p \lambda_i\]</span> <span class="math display">\[Tr(S)= \sum_i^p \lambda_i\]</span> donde los <span class="math inline">\(\lambda_i\)</span> són los valores propios de la matriz de covarianzas <span class="math inline">\(S\)</span>. Saquemos los valores propios de <span class="math inline">\(S\)</span>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>valores_propios <span class="ot">&lt;-</span> <span class="fu">eigen</span>(S)<span class="sc">$</span>values</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>valores_propios</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 796.47946744   0.73162695   0.02695006</code></pre>
+</div>
+</div>
+<p>Por tanto, la varianza generalizada es:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">prod</span>(valores_propios)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 15.70449</code></pre>
+</div>
+</div>
+<p>Y, la variación total:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(valores_propios)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 797.238</code></pre>
+</div>
+</div>
+<p>La variación total representa la dispersión individual de las variables. Es decir, mide cuánto varía cada variable sin considerar las relaciones entre ellas(ignora las covarianzas). Mientras que la varianza generalizada mide la variabilidad conjunta de las variables, es decir, cuánto varían las variables juntas. En este caso, la varianza generalizada es 15.7 y la variación total 797.24. Esto indica que las tres variables tienen una cantidad significativa de variación individual(como refleja la variación total), però estan fuertemente correlacionadas entre sí, lo que reduce la dispersión conjunta. Esto podria implicar que hay redundancia entre las variables: aunque parecen variar de manera considerable por separado, mucha de esa variación se debe a relaciones communes entre variables. Por ejemplo , tanto las ventas como la satisfacción del cliente podrían depender fuertemnete de la publicidad, haciendo que sus variaciones esten alineadas.</p>
 </section>
 </section>
 <section id="apartado-6" class="level3">
@@ -404,14 +428,14 @@ Satisfaccion_cliente 0.9498079  0.9601695            1.0000000</code></pre>
 <h4 class="anchored" data-anchor-id="respuesta-5">Respuesta</h4>
 <p>Empezemos con el vector de medias:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>medias <span class="ot">&lt;-</span> data_analisis2 <span class="sc">%&gt;%</span></span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Marca) <span class="sc">%&gt;%</span></span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">Ventas_media =</span> <span class="fu">mean</span>(Ventas),</span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">Publicidad_media =</span> <span class="fu">mean</span>(Publicidad),</span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">Satisfaccion_cliente_media=</span> <span class="fu">mean</span>(Satisfaccion_cliente) </span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>medias</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>medias <span class="ot">&lt;-</span> data_analisis2 <span class="sc">%&gt;%</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Marca) <span class="sc">%&gt;%</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">Ventas_media =</span> <span class="fu">mean</span>(Ventas),</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">Publicidad_media =</span> <span class="fu">mean</span>(Publicidad),</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">Satisfaccion_cliente_media=</span> <span class="fu">mean</span>(Satisfaccion_cliente) </span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>medias</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 3 × 4
   Marca Ventas_media Publicidad_media Satisfaccion_cliente_media
@@ -434,11 +458,11 @@ Satisfaccion_cliente 0.9498079  0.9601695            1.0000000</code></pre>
 <p>La Marca C ocupa una posición intermedia, con niveles de ventas, publicidad y satisfacción del cliente por debajo de la Marca B, pero mejores que los de la Marca A.</p>
 <p>Finalmente, calculemos la matriz de correlaciones:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>correlaciones <span class="ot">&lt;-</span> data_analisis2 <span class="sc">%&gt;%</span></span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Marca) <span class="sc">%&gt;%</span></span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_map</span>(<span class="sc">~</span> <span class="fu">cor</span>(.x <span class="sc">%&gt;%</span> <span class="fu">select</span>(Ventas, Publicidad, Satisfaccion_cliente)))</span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>correlaciones</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>correlaciones <span class="ot">&lt;-</span> data_analisis2 <span class="sc">%&gt;%</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Marca) <span class="sc">%&gt;%</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_map</span>(<span class="sc">~</span> <span class="fu">cor</span>(.x <span class="sc">%&gt;%</span> <span class="fu">select</span>(Ventas, Publicidad, Satisfaccion_cliente)))</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>correlaciones</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[[1]]
                         Ventas Publicidad Satisfaccion_cliente
@@ -468,46 +492,45 @@ Satisfaccion_cliente 0.9864109  0.9926943            1.0000000</code></pre>
 <section id="respuesta-6" class="level4">
 <h4 class="anchored" data-anchor-id="respuesta-6">Respuesta</h4>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Filtrar por cada marca y seleccionar las variables cuantitativas</span></span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>data_A <span class="ot">&lt;-</span> data_analisis2 <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Marca <span class="sc">==</span> <span class="st">"A"</span>) <span class="sc">%&gt;%</span> <span class="fu">select</span>(Ventas, Publicidad, Satisfaccion_cliente)</span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>data_B <span class="ot">&lt;-</span> data_analisis2 <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Marca <span class="sc">==</span> <span class="st">"B"</span>) <span class="sc">%&gt;%</span> <span class="fu">select</span>(Ventas, Publicidad, Satisfaccion_cliente)</span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>data_C <span class="ot">&lt;-</span> data_analisis2 <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Marca <span class="sc">==</span> <span class="st">"C"</span>) <span class="sc">%&gt;%</span> <span class="fu">select</span>(Ventas, Publicidad, Satisfaccion_cliente)</span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Calcular las matrices de correlación</span></span>
-<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>cor_A <span class="ot">&lt;-</span> <span class="fu">cor</span>(data_A)</span>
-<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>cor_B <span class="ot">&lt;-</span> <span class="fu">cor</span>(data_B)</span>
-<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>cor_C <span class="ot">&lt;-</span> <span class="fu">cor</span>(data_C)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Filtrar por cada marca y seleccionar las variables cuantitativas</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>data_A <span class="ot">&lt;-</span> data_analisis2 <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Marca <span class="sc">==</span> <span class="st">"A"</span>) <span class="sc">%&gt;%</span> <span class="fu">select</span>(Ventas, Publicidad, Satisfaccion_cliente)</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>data_B <span class="ot">&lt;-</span> data_analisis2 <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Marca <span class="sc">==</span> <span class="st">"B"</span>) <span class="sc">%&gt;%</span> <span class="fu">select</span>(Ventas, Publicidad, Satisfaccion_cliente)</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>data_C <span class="ot">&lt;-</span> data_analisis2 <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Marca <span class="sc">==</span> <span class="st">"C"</span>) <span class="sc">%&gt;%</span> <span class="fu">select</span>(Ventas, Publicidad, Satisfaccion_cliente)</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Calcular las matrices de correlación</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>cor_A <span class="ot">&lt;-</span> <span class="fu">cor</span>(data_A)</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>cor_B <span class="ot">&lt;-</span> <span class="fu">cor</span>(data_B)</span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>cor_C <span class="ot">&lt;-</span> <span class="fu">cor</span>(data_C)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Marca A:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(cor_A, <span class="at">method =</span> <span class="st">"square"</span>, <span class="at">type =</span> <span class="st">"lower"</span>, <span class="at">lab =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(cor_A, <span class="at">method =</span> <span class="st">"square"</span>, <span class="at">type =</span> <span class="st">"lower"</span>, <span class="at">lab =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="practica3_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="practica3_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>Marca B:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(cor_B, <span class="at">method =</span> <span class="st">"circle"</span>, <span class="at">type =</span> <span class="st">"lower"</span>, <span class="at">lab =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(cor_B, <span class="at">method =</span> <span class="st">"circle"</span>, <span class="at">type =</span> <span class="st">"lower"</span>, <span class="at">lab =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="practica3_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="practica3_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>Marca C:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>cor_C_rounded <span class="ot">&lt;-</span> <span class="fu">round</span>(<span class="fu">cor</span>(data_C), <span class="dv">3</span>)</span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(cor_C_rounded, <span class="at">method =</span> <span class="st">"circle"</span>, <span class="at">type =</span> <span class="st">"lower"</span>, <span class="at">lab =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(cor_C, <span class="at">method =</span> <span class="st">"circle"</span>, <span class="at">type =</span> <span class="st">"lower"</span>, <span class="at">lab =</span> <span class="cn">TRUE</span>, <span class="at">lab_size =</span> <span class="dv">4</span>, <span class="at">digits =</span> <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="practica3_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="practica3_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
